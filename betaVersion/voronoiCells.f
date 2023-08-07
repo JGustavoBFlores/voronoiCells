@@ -10,6 +10,8 @@ C Create data files to save the iterations
       CALL SYSTEM('mkdir library')
       CALL dataFiles(iter,files)
 
+C Generate a random seed
+      CALL init_random_seed()
 C Random initial state:
       DO J=1,2
       DO I=1,N
@@ -61,4 +63,19 @@ C  and moves them to a directory called library
        WRITE(files(i),'(A,I4.4)') 'library/data',I
        WRITE(2,'(A)') files(I)
       END DO
+      END SUBROUTINE
+
+      SUBROUTINE init_random_seed()
+      INTEGER :: i, n, clock
+      INTEGER, DIMENSION(:), ALLOCATABLE :: seed
+      
+      CALL RANDOM_SEED(size = n)
+      ALLOCATE(seed(n))
+      
+      CALL SYSTEM_CLOCK(COUNT=clock)
+      
+      seed = clock + 37 * (/ (i - 1, i = 1, n) /)
+      CALL RANDOM_SEED(PUT = seed)
+
+      DEALLOCATE(seed)
       END SUBROUTINE

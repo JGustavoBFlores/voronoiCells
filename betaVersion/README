@@ -1,11 +1,3 @@
-  This beta version consists on two codes:
+  This beta version consists on differs from alpha by:
 
-  a FORTRAN code that:
-    1) Creates N cells with their own 2D position
-    2) Gives them a random speed at every step
-    3) Calculates a new location based on the speed and a time parameter
-    4) Saves the cell collection's positions on a "library" gallery
-
-  a PYTHON code that:
-    1) Plots the locations of the cells using the voronoi idealization
-    2) Stores each frame into a "gallery" directory    
+  1) Generates a random seed for the random number function.
