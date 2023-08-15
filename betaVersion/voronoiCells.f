@@ -1,6 +1,6 @@
       PROGRAM VORONOICELLS
       IMPLICIT REAL*8 (A-H,O-Z)
-      PARAMETER (iter=100, N=100, dT=0.35) !iterations and grid size
+      PARAMETER (iter=100, N=100, dT=0.20) !iterations and grid size
       REAL, DIMENSION(N,2) :: posit
       REAL, DIMENSION(N,2) :: speed
       CHARACTER(12) frmt
@@ -15,39 +15,50 @@ C Generate a random seed
 C Random initial state:
       DO J=1,2
       DO I=1,N
+       iy=1
        CALL RANDOM_NUMBER(x)
-       posit(I,J)=20*x
+       IF(x.LT.0.5)iy=-1
+       CALL RANDOM_NUMBER(x)
+       posit(I,J)=10*iy*x
       END DO
       END DO
+C Our first particle will always be on (-10,-10)
+      posit(1,1)=-10.0D0
+      posit(1,2)=-10.0D0
 C Store the initial state
       OPEN(UNIT=1,FILE='library/data0000')
       DO I=1,N
        WRITE(1,*) (posit(I,J),J=1,2)
       END DO
       CLOSE(1)
- 
 C Move the cells iter-times
+      
       DO K=1,iter
       OPEN(UNIT=1,FILE=files(K))
 
-      DO J=1,2
-      DO I=1,N
-       iy=1
-       CALL RANDOM_NUMBER(x)
-       IF(X.lt.0.5)iy=-1
-       CALL RANDOM_NUMBER(x)
-       posit(I,J)=posit(I,J) + iy*x*dT
-      END DO
-      END DO
-      
-      DO I=1,N
-       WRITE(1,*) (posit(I,J),J=1,2)
-      END DO
+C This block moves the particles over on a random direction
+C     DO J=1,2
+C     DO I=1,N
+C      iy=1
+C      CALL RANDOM_NUMBER(x)
+C      IF(X.lt.0.5)iy=-1
+C      CALL RANDOM_NUMBER(x)
+C      posit(I,J)=posit(I,J) + iy*x*dT    !Random movement
+C     END DO
+C     END DO
 
+C Lets now try moving a particle from quad3 towards the quad1
+C     CALL RANDOM_NUMBER(x)
+C     IF(X.lt.0.5)iy=-1
+C     CALL RANDOM_NUMBER(x)
+C     posit(1,1)=posit(1,1)+(Cos(x*0.175)-Sin(iy*x*0.175))*dT
+C     posit(1,2)=posit(1,2)+(Cos(x*0.175)+Sin(iy*x*0.175))*dT
+C     DO I=1,N
+C      WRITE(1,*) (posit(I,J),J=1,2)
+C     END DO
 
-
-      END DO
       CLOSE(1)
+      END DO
       
 
 
