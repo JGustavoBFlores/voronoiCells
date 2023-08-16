@@ -1,3 +1,7 @@
   This beta version consists on differs from alpha by:
 
   1) Generates a random seed for the random number function.
+  2) Includes repulsive interactions, which requires:
+      a) A position-sorting subroutine.
+      b) A Delaunay-segment finder; this will point out
+           the Voronoi cells neighbors.
