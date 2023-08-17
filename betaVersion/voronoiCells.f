@@ -1,6 +1,6 @@
       PROGRAM VORONOICELLS
       IMPLICIT REAL*8 (A-H,O-Z)
-      PARAMETER (iter=100, N=1000000) !iterations, #cells
+      PARAMETER (iter=100, N=100000) !iterations, #cells
       PARAMETER (dT=0.2D0, amxmn=1.0d1)
       REAL, DIMENSION(N,2) :: posit
       CHARACTER(12) frmt
@@ -18,11 +18,16 @@ C Our first particle will always be on (-mxmn,-mxmn)
       posit(1,1)=-amxmn
       posit(1,2)=-amxmn
       
+      OPEN(UNIT=1,FILE='library/data0000')
+      DO I=1,N
+       WRITE(1,*) (posit(I,J),J=1,2)
+      END DO
+      CLOSE(1)
 C Sort our data before storing it
       CALL SORTERER(N,amxmn,posit)
       
 C Store the initial state
-      OPEN(UNIT=1,FILE='library/data0000')
+      OPEN(UNIT=1,FILE='library/data0000p')
       DO I=1,N
        WRITE(1,*) (posit(I,J),J=1,2)
       END DO
@@ -50,6 +55,7 @@ C to the first element of each row
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL, DIMENSION(N,2) :: inArr, ouArr
       REAL, ALLOCATABLE :: column(:)
+      LOGICAL flag1, flag2
 C This sorting algorithm is extremely slow one 
 C reason is that we are not using intrinsic functions
 C For this reason we will try a different approach,
@@ -80,21 +86,26 @@ C Lets try a new sorting methodology
       L=0
       ouArr=2*amxmn
  3031 CONTINUE
+      flag1=.FALSE.
+      flag2=.FALSE.
       L=L+1
-      ALLOCATE(column(N-2L+2))
+      ALLOCATE(column(N-2*L+2))
       column=inArr(L:N+1-L,1)
-      ouArr(L,1)=MAXVAL(column)
-      ouArr(N+1-L,1)=MINVAL(column)
+      ouArr(    L,1)=MINVAL(column)
+      ouArr(N+1-L,1)=MAXVAL(column)
       DO I=1,N
       IF(inArr(I,1).EQ.ouArr(L,1))THEN
        ouArr(L,2)=inArr(I,2)
-       EXIT
+       inArr(I,1)=inArr(L,1) 
+       inArr(I,2)=inArr(L,2) 
+       flag1=.TRUE.
       ELSE IF(inArr(I,1).EQ.ouArr(N+1-L,1))THEN
        ouArr(N+1-L,2)=inArr(I,2)
-       EXIT
-       
+       inArr(I,1)=inArr(N+1-L,1) 
+       inArr(I,2)=inArr(N+1-L,2) 
+       flag2=.TRUE.
       END IF
-      
+       IF(flag1.AND.flag2)EXIT
       END DO
       DEALLOCATE(column)
       GOTO 3031
