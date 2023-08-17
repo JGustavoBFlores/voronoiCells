@@ -1,8 +1,8 @@
       PROGRAM VORONOICELLS
       IMPLICIT REAL*8 (A-H,O-Z)
-      PARAMETER (iter=100, N=100, dT=0.20) !iterations and grid size
+      PARAMETER (iter=100, N=100) !iterations, #cells
+      PARAMETER (dT=0.2D0, amxmn=1.0d1)
       REAL, DIMENSION(N,2) :: posit
-      REAL, DIMENSION(N,2) :: speed
       CHARACTER(12) frmt
       CHARACTER(16) files(iter)
 
@@ -12,57 +12,47 @@ C Create data files to save the iterations
 
 C Generate a random seed
       CALL init_random_seed()
-C Random initial state:
-      DO J=1,2
-      DO I=1,N
-       iy=1
-       CALL RANDOM_NUMBER(x)
-       IF(x.LT.0.5)iy=-1
-       CALL RANDOM_NUMBER(x)
-       posit(I,J)=10*iy*x
-      END DO
-      END DO
-C Our first particle will always be on (-10,-10)
-      posit(1,1)=-10.0D0
-      posit(1,2)=-10.0D0
+C Generate a random starting state
+      CALL ARRAYMAKER(N,amxmn,posit)
+      PRINT*, posit(1,1)
+C Our first particle will always be on (-mxmn,-mxmn)
+      posit(1,1)=-amxmn
+      posit(1,2)=-amxmn
 C Store the initial state
       OPEN(UNIT=1,FILE='library/data0000')
       DO I=1,N
        WRITE(1,*) (posit(I,J),J=1,2)
       END DO
       CLOSE(1)
-C Move the cells iter-times
       
-      DO K=1,iter
-      OPEN(UNIT=1,FILE=files(K))
+C Now we need a subroutine to grab the positions
+C and output an array with some very important info
+C about all the possible segments
 
-C This block moves the particles over on a random direction
-C     DO J=1,2
-C     DO I=1,N
-C      iy=1
-C      CALL RANDOM_NUMBER(x)
-C      IF(X.lt.0.5)iy=-1
-C      CALL RANDOM_NUMBER(x)
-C      posit(I,J)=posit(I,J) + iy*x*dT    !Random movement
-C     END DO
-C     END DO
-
-C Lets now try moving a particle from quad3 towards the quad1
-C     CALL RANDOM_NUMBER(x)
-C     IF(X.lt.0.5)iy=-1
-C     CALL RANDOM_NUMBER(x)
-C     posit(1,1)=posit(1,1)+(Cos(x*0.175)-Sin(iy*x*0.175))*dT
-C     posit(1,2)=posit(1,2)+(Cos(x*0.175)+Sin(iy*x*0.175))*dT
-C     DO I=1,N
-C      WRITE(1,*) (posit(I,J),J=1,2)
-C     END DO
-
-      CLOSE(1)
-      END DO
+C Segment Information
+C Starting point, Ending point, Size, Slope
+C :
       
-
+      
 
       END PROGRAM
+
+C This subroutine creates a randomized N*2 array  this is directed towards
+C randomized positions in between a space that spans rectangularly from
+C (-mxmn,-mxmn) to (mxmn,mxmn)
+      SUBROUTINE ARRAYMAKER(N,amxmn,ouArr)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      REAL, DIMENSION(N,2) :: ouArr
+      DO J=1,2
+      DO I=1,N
+       iy=1
+       CALL RANDOM_NUMBER(x)
+       IF(x.LT.0.5)iy=-1
+       CALL RANDOM_NUMBER(x)
+       ouArr(I,J)=amxmn*iy*x
+      END DO
+      END DO
+      END SUBROUTINE
 
 C This subroutine creates N data files named data####
 C  and moves them to a directory called library
@@ -76,17 +66,16 @@ C  and moves them to a directory called library
       END DO
       END SUBROUTINE
 
+C This subroutine initializes a seed for the random_number
+C statement calls, based on the local clock
       SUBROUTINE init_random_seed()
       INTEGER :: i, n, clock
       INTEGER, DIMENSION(:), ALLOCATABLE :: seed
       
       CALL RANDOM_SEED(size = n)
       ALLOCATE(seed(n))
-      
       CALL SYSTEM_CLOCK(COUNT=clock)
-      
       seed = clock + 37 * (/ (i - 1, i = 1, n) /)
       CALL RANDOM_SEED(PUT = seed)
-
       DEALLOCATE(seed)
       END SUBROUTINE
