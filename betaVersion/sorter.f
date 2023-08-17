@@ -1,13 +1,21 @@
-      SUBROUTINE ARRAYMAKER(N,walls,ouArr)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      REAL, DIMENSION(N,2) :: ouArr
-      DO J=1,2
-      DO I=1,N
-       iy=1
-       CALL RANDOM_NUMBER(x)
-       IF(x.LT.0.5)iy=-1
-       CALL RANDOM_NUMBER(x)
-       ouArr(I,J)=walls*iy*x
+      PROGRAM wver                          
+      real, dimension(3, 4) :: matrix 
+      real, dimension(4) :: min_values
+      integer :: dim
+
+      DO J=1,4
+      DO I=1,3
+       matrix(I,J)=I*J
       END DO
       END DO
-      END SUBROUTINE
+
+      DO I=1,3
+       PRINT*, (matrix(I,J),J=1,4)
+      END DO
+
+      dim = 2  ! Along the first dimension
+
+      min_values = MINVAL(matrix, dim)
+      PRINT*, min_values
+
+      END program      
